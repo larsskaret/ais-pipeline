@@ -59,35 +59,70 @@ while : ; do
     fi
 done
 
+export GOOGLE_CLOUD_PROJECT=`gcloud info --format="value(config.project)"`
+
+#Create a json file Prefect can use
+echo "Configuring a Prefect service account with these roles:"
+echo "Create a gcp_prefect.json file for authentication."
+sleep 2
+
+gcloud iam service-accounts create prefect \
+    --description="Prefect Service Account" \
+    --display-name="prefect"
+
+export GOOGLE_SERVICE_ACCOUNT=`gcloud iam service-accounts list --format="value(email)"  --filter=description:"Prefect Service Account"` 
+
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+    --role="roles/viewer"
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+    --role="roles/storage.admin"
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+    --role="roles/storage.objectAdmin"
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+    --role="roles/bigquery.admin"
+
+gcloud iam service-accounts keys create "../secrets/gcp_prefect.json"  \
+  --iam-account=$GOOGLE_SERVICE_ACCOUNT 
+
 #Create a json file Terraform can use
 echo "Configuring a Terrafom service account with editor role."
-echo "Create a terraform.json file for authentication."
+echo "Create a gcp_terraform.json file for authentication."
+sleep 2
 
 gcloud iam service-accounts create terraform \
     --description="Terraform Service Account" \
     --display-name="terraform"
 
-
 export GOOGLE_SERVICE_ACCOUNT=`gcloud iam service-accounts list --format="value(email)"  --filter=description:"Terraform Service Account"` 
-export GOOGLE_CLOUD_PROJECT=`gcloud info --format="value(config.project)"`
 
 gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
     --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
     --role="roles/editor" 
 
-gcloud iam service-accounts keys create "../secrets/terraform.json"  \
+gcloud iam service-accounts keys create "../secrets/gcp_terraform.json"  \
   --iam-account=$GOOGLE_SERVICE_ACCOUNT 
+
+echo
+BILL=$(gcloud beta billing accounts list | grep -Eo '.{6}-.{6}-.{6}')
+gcloud billing projects link $GOOGLE_CLOUD_PROJECT --billing-account $BILL
 
 
 echo "Activating API to allow terraform to actiate APIs..."
+sleep 2
 #Do we need all? Remove TODO
 gcloud services enable cloudresourcemanager.googleapis.com
-gcloud services enable cloudbilling.googleapis.com
-gcloud services enable iam.googleapis.com
-gcloud services enable serviceusage.googleapis.com
+#TODO how long to wait before becomes active?
+#gcloud services enable cloudbilling.googleapis.com
+#gcloud services enable iam.googleapis.com
+#gcloud services enable serviceusage.googleapis.com
 
 
 echo Let us install Terraform
+sleep 1
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install terraform
@@ -99,12 +134,14 @@ echo -e "-Run the installation and startup script compute_engine.sh"
 echo -e "on the compute_engine."
 echo -e "-Set up an ssh connection to the compute engine\n"
 sleep 2
+
 cd terraform
 terraform init
-terraform apply -var="project=${GOOGLE_CLOUD_PROJECT}" #-auto-approve
-terraform output -raw
+terraform apply -var="project=${GOOGLE_CLOUD_PROJECT}" #-auto-approve?
+user=$(terraform output -raw user)
+public_ip=$(terraform output -raw public_ip)
 
 echo "Let us ssh into the compute instance, and then you can continue from there."
-
+sleep 2
 ssh -i .ssh/google_compute_engine ${user}@${public_ip}
 #Alternative gcloud compute ssh ${MACHINE-NAME}

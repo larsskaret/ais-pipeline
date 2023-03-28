@@ -16,7 +16,8 @@ terraform {
 provider "google" {
   project = var.project
   region = var.region
-  credentials = "../secrets/terraform.json"
+  zone = var.zone
+  credentials = "../secrets/gcp_terraform.json"
 }
 
 # Data Lake Bucket
@@ -38,7 +39,7 @@ resource "google_storage_bucket" "data-lake-bucket" {
       type = "Delete"
     }
     condition {
-      age = 30  // days
+      age = 60  // days
     }
   }
 
