@@ -1,0 +1,7 @@
+.env.example
+To create an .env for the project setup. 
++ A centralized place to specifiy all the information needed for the project. 
++ Automation using scripts
++ "Default" information already filled out.
+- Security?
+
