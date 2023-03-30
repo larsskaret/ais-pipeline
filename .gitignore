@@ -1,9 +1,10 @@
 secrets/*
-terraform/.terraform/*
 .ssh/*
-terraform/.terraform.lock.hcl
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
+
+.terraform
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
 
 prefect/test.py
 **/__pycache__/*
