@@ -1,0 +1,12 @@
+prefect
+main purpose: 
++ orchestration 
++ gives overview 
+- adds complexity to the project
+
+create_gcp_blocks.py
+main purpose: 
++ To avoid click-ops. 
++ Allow automation and easier setup. 
+- Handling environment variables can be intricate
+- securty conserns
