@@ -29,7 +29,6 @@ if [[ ! -f ./startup_flag ]]; then
     #Piperider?
     #If spark: java setup
 
-    touch ./startup_flag
 
 fi
 

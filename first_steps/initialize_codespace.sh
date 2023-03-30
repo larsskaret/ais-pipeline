@@ -1,15 +1,16 @@
 #!/bin/bash
-echo -e "\n#####################################
-# First, let us install the GCP SDK #
-#####################################\n"
+set -o allexport && source .env && set +o allexport
+
+echo -e "\n"
+echo -e "#####################################"
+echo -e "# First, let us install the GCP SDK #
+echo -e "#####################################\n"
 sleep 3
+
 #GCP SDK installation
 sudo apt-get install apt-transport-https ca-certificates gnupg
-
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee /usr/share/keyrings/cloud.google.gpg
-
 sudo apt-get update && sudo apt-get install google-cloud-cli
 
 #Intialize or login gcloud
@@ -23,12 +24,11 @@ echo -e """
 ########################################\n"""
 
 gcloud auth login --no-launch-browser
-#gcloud init
 
-PROJECT_ID=ais-project-$RANDOM
+GCP_PROJECT_ID=$GCP_PROJECT_NAME-$RANDOM
        
 while : ; do
-    echo -e "[1] Create a new project (ID: ${PROJECT_ID})."
+    echo -e "[1] Create a new project (ID: ${GCP_PROJECT_ID})."
     echo -e "[2] Use an existing project. Will take you to GCP interactive mode (gcloud init)."
     echo -e "[q] Quit\n"
     read -r INPUT
@@ -39,9 +39,9 @@ while : ; do
         break
     elif [[ "$INPUT" == "1" ]] 
     then
-        echo -e "Project id: ${PROJECT_ID}"
-        echo -e "Project name: ais-project\n"
-        gcloud projects create $PROJECT_ID --name="ais-project" --verbosity=none --set-as-default
+        echo -e "Project id: ${GCP_PROJECT_ID}"
+        echo -e "Project name: ${GCP_PROJECT_NAME}\n"
+        gcloud projects create $GCP_PROJECT_ID --name="$GCP_PROJECT_NAME" --verbosity=none --set-as-default
         if [ $? -eq 0 ] 
         then
             echo -e "Successfully created project\n" 
@@ -52,14 +52,15 @@ while : ; do
     elif [[ "$INPUT" == "2" ]] 
     then
         gcloud init
-        PROJECT_ID=$(gcloud config get-value project)
-        echo -e "Current project is ${PROJECT_ID}"
+        GCP_PROJECT_ID=$(gcloud config get project)
+        echo -e "Current project is ${GCP_PROJECT_ID}"
     else
         echo -e "Try again.\n"
     fi
 done
 
-export GOOGLE_CLOUD_PROJECT=`gcloud info --format="value(config.project)"`
+line=$(grep -n "GCP_PROJECT_ID=" ../env | cut -d: -f1)
+sed -i "${line}s/$/${GCP_PROJECT_ID}/" ../env
 
 #Create a json file Prefect can use
 echo "Configuring a Prefect service account with these roles:"
@@ -68,25 +69,25 @@ sleep 2
 
 gcloud iam service-accounts create prefect \
     --description="Prefect Service Account" \
-    --display-name="prefect"
+    --display-name="$GCP_PREFECT_SERVICE_ACCOUNT_NAME"
 
-export GOOGLE_SERVICE_ACCOUNT=`gcloud iam service-accounts list --format="value(email)"  --filter=description:"Prefect Service Account"` 
+GCP_PREFECT_SERVICE_ACCOUNT_EMAIL=`gcloud iam service-accounts list --format="value(email)"  --filter=description:"Prefect Service Account"` 
 
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+    --member="serviceAccount:$GCP_PREFECT_SERVICE_ACCOUNT_EMAIL" \
     --role="roles/viewer"
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+    --member="serviceAccount:$GCP_PREFECT_SERVICE_ACCOUNT_EMAIL" \
     --role="roles/storage.admin"
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+    --member="serviceAccount:$GCP_PREFECT_SERVICE_ACCOUNT_EMAIL" \
     --role="roles/storage.objectAdmin"
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+    --member="serviceAccount:$GCP_PREFECT_SERVICE_ACCOUNT_EMAIL" \
     --role="roles/bigquery.admin"
 
-gcloud iam service-accounts keys create "../secrets/gcp_prefect.json"  \
-  --iam-account=$GOOGLE_SERVICE_ACCOUNT 
+gcloud iam service-accounts keys create ../$GCP_PREFECT_JSON_LOCATION  \
+  --iam-account=$GCP_PREFECT_SERVICE_ACCOUNT_EMAIL
 
 #Create a json file Terraform can use
 echo "Configuring a Terrafom service account with editor role."
@@ -95,20 +96,21 @@ sleep 2
 
 gcloud iam service-accounts create terraform \
     --description="Terraform Service Account" \
-    --display-name="terraform"
+    --display-name="$GCP_TERRAFORM_SERVICE_ACCOUNT_NAME"
 
-export GOOGLE_SERVICE_ACCOUNT=`gcloud iam service-accounts list --format="value(email)"  --filter=description:"Terraform Service Account"` 
+GCP_TERRAFORM_SERVICE_ACCOUNT_EMAIL=`gcloud iam service-accounts list --format="value(email)"  --filter=description:"Terraform Service Account"` 
 
-gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
-    --member="serviceAccount:$GOOGLE_SERVICE_ACCOUNT" \
+gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
+    --member="serviceAccount:$GCP_TERRAFORM_SERVICE_ACCOUNT_EMAIL" \
     --role="roles/editor" 
 
-gcloud iam service-accounts keys create "../secrets/gcp_terraform.json"  \
-  --iam-account=$GOOGLE_SERVICE_ACCOUNT 
+gcloud iam service-accounts keys create ../$GCP_TERRAFORM_JSON_LOCATION  \
+  --iam-account=$GCP_TERRAFORM_SERVICE_ACCOUNT 
 
-echo
+echo Activate billing for the project
+sleep 2
 BILL=$(gcloud beta billing accounts list | grep -Eo '.{6}-.{6}-.{6}')
-gcloud billing projects link $GOOGLE_CLOUD_PROJECT --billing-account $BILL
+gcloud billing projects link $GCP_PROJECT_ID --billing-account $BILL
 
 
 echo "Activating API to allow terraform to actiate APIs..."
@@ -121,27 +123,29 @@ gcloud services enable cloudresourcemanager.googleapis.com
 #gcloud services enable serviceusage.googleapis.com
 
 
-echo Let us install Terraform
-sleep 1
+echo Install Terraform
+sleep 2
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install terraform
-#terraform -install-autocomplete #don't need this?
 
 echo -e "Terraform will:"
 echo -e "-Set up BigQuery, data lake bucket and a compute engine."
-echo -e "-Run the installation and startup script compute_engine.sh"
-echo -e "on the compute_engine."
-echo -e "-Set up an ssh connection to the compute engine\n"
+echo -e "-Set up an ssh connection to the compute engine"
+echo -e "with a permament extarnal IP-address\n"
 sleep 2
 
 cd terraform
 terraform init
-terraform apply -var="project=${GOOGLE_CLOUD_PROJECT}" #-auto-approve?
-user=$(terraform output -raw user)
-public_ip=$(terraform output -raw public_ip)
+terraform apply -var="project=${GCP_PROJECT_ID}" #-auto-approve?
+
+PUBLIC_IP=$(terraform output -raw public_ip)
+line=$(grep -n "GCP_COMPUTE_IP=" ../env | cut -d: -f1)
+sed -i "${line}s/$/${PUBLIC_IP}/" ../env
+
+set -o allexport && source .env && set +o allexport
 
 echo "Let us ssh into the compute instance, and then you can continue from there."
-sleep 2
-ssh -i .ssh/google_compute_engine ${user}@${public_ip}
+echo "Use this command:"
+echo -e "ssh -i .ssh/google_compute_engine ${GCP_COMPUTE_USERNAME}@${GCP_COMPUTE_IP}"
 #Alternative gcloud compute ssh ${MACHINE-NAME}

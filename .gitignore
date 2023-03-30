@@ -1,6 +1,6 @@
 secrets/*
 terraform/.terraform/*
-terraform/.ssh/*
+.ssh/*
 terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup

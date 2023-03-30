@@ -17,17 +17,18 @@ provider "google" {
   project = var.project
   region = var.region
   zone = var.zone
-  credentials = "../secrets/gcp_terraform.json"
+  credentials = "../${var.cred_location}"
 }
 
 # Data Lake Bucket
 # Ref: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket
+
 resource "google_storage_bucket" "data-lake-bucket" {
-  name          = "${local.data_lake_bucket}_${var.project}" # Concatenating DL bucket & Project name for unique naming
-  location      = var.region
+  name     = var.data_lake_bucket
+  location = var.region
 
   # Optional, but recommended settings:
-  storage_class = var.storage_class
+  storage_class               = var.storage_class
   uniform_bucket_level_access = true
 
   versioning {
@@ -42,54 +43,32 @@ resource "google_storage_bucket" "data-lake-bucket" {
       age = 60  // days
     }
   }
-
   force_destroy = true
 }
 
 # DWH
 # Ref: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/bigquery_dataset
+
 resource "google_bigquery_dataset" "dataset" {
   dataset_id = var.bq_dataset
   project    = var.project
   location   = var.region
 }
 
-resource "google_service_account" "compute-sa" {
-  account_id = "compute-sa"
-}
 
-#ssh
-resource "google_compute_address" "static_ip" {
-  name = "instance-ais"
-}
-#ssh
-resource "google_compute_firewall" "allow_ssh" {
-  name          = "allow-ssh"
-  network       = google_compute_network.vpc_network.name
-  target_tags   = ["allow-ssh"] // this targets our tagged VM
-  source_ranges = ["0.0.0.0/0"]
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-}
-#ssh
-data "google_client_openid_userinfo" "me" {}
-
-#See also logseq!
+#See also nets
 # Enable the necessary services on the project for deployments
+#TODO Set what APIs to use.
+#TODO Move list to .env / variables?
+
 resource "google_project_service" "service" {
-  #TODO Set what APIs to use.
   for_each = toset([
     "cloudbilling.googleapis.com",
     "compute.googleapis.com",
     "iam.googleapis.com"
-
   ])
 
-  service = each.key
-
+  service            = each.key
   project            = var.project
   disable_on_destroy = false
 }
