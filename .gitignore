@@ -1,4 +1,4 @@
-secrets/*
+secrets
 .ssh/*
 
 .terraform
@@ -6,7 +6,7 @@ secrets/*
 *.tfstate
 *.tfstate.*
 
-prefect/test.py
+compute_engine/prefect/test.py
 **/__pycache__/*
 plan
 .env

@@ -1,6 +1,6 @@
 import os
 
-GCS_TABLE_DK = os.getenv("GCP_DATALAKE_PATH")+'.'+os.getenv("GCP_BQ_TABLE")#DATASET.TABLE
+GCS_TABLE_DK = os.getenv("GCP_DATALAKE_PATH")+'.'+os.getenv("GCP_BQ_TABLE")#In bigquery: dateset.table
 GCS_PROJECT_ID = os.getenv("GCS_PROJECT_ID")
 BLOCK_GCP_CRED = os.getenv("PREFECT_GCP_CRED_BLOCK")
 BLOCK_GCS_BUCKET = os.getenv("PREFECT_GCP_BUCKET_BLOCK") 
