@@ -1,10 +1,10 @@
 import os
 
-GCS_TABLE_DK = os.getenv("GCP_DATALAKE_PATH")+'.'+os.getenv("GCP_BQ_TABLE")#In bigquery: dateset.table
+GCS_TABLE_DK = os.getenv("GCP_DATALAKE_PATH_DK")+'.'+os.getenv("GCP_BQ_TABLE_DK")#In bigquery: dateset.table
 GCS_PROJECT_ID = os.getenv("GCS_PROJECT_ID")
 BLOCK_GCP_CRED = os.getenv("PREFECT_GCP_CRED_BLOCK")
 BLOCK_GCS_BUCKET = os.getenv("PREFECT_GCP_BUCKET_BLOCK") 
-GCS_BUCKET_LOC_DK = os.getenv("GCP_DATALAKE_PATH")
+GCS_BUCKET_LOC_DK = os.getenv("GCP_DATALAKE_PATH_DK")
 
 #Connect this to terraform somehow?
 SCHEMA_DK = {
