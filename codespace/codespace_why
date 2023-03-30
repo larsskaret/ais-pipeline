@@ -1,3 +1,11 @@
+codespace
+Instead of using the local computer.
+A place to set up the infrastructure (gcp + terraform)
++ Same for everyone, reproduction should be easier.
++ Accessible
++ Durability ie local computer breaks down
+- Environment start from scratch (could also be a good thing, no dependencies)
+
 .env.example
 To create an .env for the project setup. 
 + A centralized place to specifiy all the information needed for the project. 
@@ -5,3 +13,9 @@ To create an .env for the project setup.
 + "Default" information already filled out.
 - Security?
 
+init_codespace.sh
+A shell script to automate setup
++ All commands from GCP SDK installation to terraform apply gathered in one place.
++ No copy-paste or detailed instructions needed 
+- Less freedom to do thing differently/better/my way. Workaround: run the commands in the terminal in the order you want.
+- Bugs?

@@ -20,6 +20,12 @@ provider "google" {
   credentials = "../${var.cred_location}"
 }
 
+resource "google_project_service" "crm_api" {
+  service            = "cloudresourcemanager.googleapis.com"
+  disable_on_destroy = false
+  project            = var.project
+}
+
 # Data Lake Bucket
 # Ref: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket
 

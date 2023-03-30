@@ -1,5 +1,5 @@
 secrets
-.ssh/*
+.ssh
 
 .terraform
 .terraform.lock.hcl
