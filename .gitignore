@@ -8,3 +8,4 @@ terraform/terraform.tfstate.backup
 prefect/test.py
 **/__pycache__/*
 plan
+.env
