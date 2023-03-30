@@ -4,6 +4,6 @@ terraform/.ssh/*
 terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
-.env
+
 prefect/test.py
 **/__pycache__/*
