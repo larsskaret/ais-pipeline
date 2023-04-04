@@ -10,3 +10,12 @@ compute_engine/prefect/test.py
 **/__pycache__/*
 plan
 .env
+
+#dbt
+target/
+dbt_packages/
+logs/
+
+#prefect
+.prefectignore
+.user.yml

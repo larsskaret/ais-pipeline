@@ -1,0 +1,79 @@
+version: 2
+
+sources:
+    - name: staging
+      #For bigquery:
+      database: "{{ env_var('GCP_PROJECT_ID') }}"
+
+      # For postgres:
+      # database: production
+
+      schema: ais_data
+
+      # loaded_at_field: record_loaded_at
+      tables:
+        - name: dk
+         # freshness:
+           # error_after: {count: 6, period: hour}
+
+models:
+    - name: stg_ais_dk
+      description: >
+        AIS Data from Denmark
+        Something something. 
+      #Source: ais.dk plus google
+      columns:
+          - name: ais_id
+            description: Primary key for this table, generated with a concatenation of mmsi and timestamp
+            tests:
+                - unique:
+                    severity: warn
+                - not_null:
+                    severity: warn
+          - name: timestamp 
+            description: > 
+                Timestamp from the AIS basestation
+            tests:
+                - not_null:
+                    severity: warn
+          - name: source_type 
+            description: Describes what type of target this message is received from (class A AIS Vessel, Class B AIS vessel, etc)
+          - name: mmsi 
+            description: A Maritime Mobile Service Identity (MMSI) is a nine-digit number, similar to a cell phone number, that identifies a vessel or boat. 
+            tests:
+                - not_null:
+                    severity: warn
+          - name: lat 
+            description: Latitude
+          - name: lon 
+            description: Longitude
+          - name: nav_status
+            description: >
+                Navigational status from AIS message, if available.
+                Example Engaged in fishing, Under way using engine.
+          - name: rot
+            description: Rate of turn from AIS message.
+          - name: sog
+            description: Speed over ground.
+          - name: cog 
+            description: Course over ground.
+          - name: heading
+            description: Course ship is heading.
+          - name: imo
+            description: imo (inernational maritime organzation) number. The IMO ship identification number is a unique ship identifier.
+          - name: callsign
+            description: A call sign is a designated sequence of letters and numbers that are assigned when a vessel receives it's Ship Radio Licence.
+          - name: name
+            description: Name of the vessel
+          - name: ship_type
+            description: AIS ship type. Examples Passenger, Military, Sailing
+          - name: cargo_type
+            description: Category X, Y, Z and OS. See Marpol Annex II https://www.imo.org/en/ourwork/environment/pages/chemicalpollution-default.aspx
+          - name: destination
+            description: Destination of vessel.
+          - name: eta
+            description: Estiamted time of arrival.
+            
+          
+          
+            

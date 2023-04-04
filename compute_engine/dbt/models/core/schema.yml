@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: fact_ais
+    description: >
+      Fact table for ais messages in Denmark.
+  - name: fact_ships
+    description: >
+      Fact table containing information of vessels in Danish waters.
+  - name: fact_under_way
+    description: >
+      Fact table for ais messages in Denmark. Contains only messages where vessel is reporting that it is moving (under way)
