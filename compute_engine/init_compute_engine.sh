@@ -1,45 +1,43 @@
 #!/bin/bash
-if [[ ! -f ./startup_flag ]]; then 
 
-    echo Installing components...
-    #Python requirements
-    #sudo apt update && sudo apt --yes upgrade
-    #sudo apt --yes install python3-pip
-    #pip3 install --user -r ./requirements --use-pep517
+#Workaround for slow processing triggers for man-db
+sudo touch /var/lib/man-db/auto-update
 
-    
-    #Install
-    #Skip Anaconda? - https://docs.anaconda.com/anaconda/install/silent-mode/
-    cd ..
-    cd ..
-    wget https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh
+sudo apt update
+sudo apt -y upgrade
 
-    bash Anaconda3-2022.10-Linux-x86_64.sh
- 
-    source .bashrc
-    
-    cd ais-pipeline
-    conda create -n ais-env
-    conda activate ais-env
-    conda install pip
-    pip install -r compute_engine/requirements
+cd ais_pipeline
+#.env location should come from env variable
+set -o allexport && source .secrets/.env && set +o allexport
+echo "Here: 1"
+sudo apt install python3.8-venv -y
+python3 -m venv ais-env
+source ais-env/bin/activate
 
-    #Python libraries: in requirements
-    #Docker?
-    #Piperider?
-    #If spark: java setup
+#Is pip installed?
+sudo apt install pip -y
+pip install -r requirements.txt
 
+#Prefect
+prefect cloud login -k $"PREFECT_KEY"
 
-fi
+#Create blocks
+python3 create_gcp_blocks.py
 
-echo Executing program startup
-#git clone?
-#Not sure about this:
-#prefect orion start & prefect agent start default & wait
-#Perform initial EL with python code -> pandas, pyarrow, polars, spark? 
-#source->bucket_raw (CSV) WHAT TO USE? wget and 
-# -> bucket_pq -> bq -> bq_dbt (production?)
-#dbt and prefect https://prefecthq.github.io/prefect-dbt/
-#https://www.prefect.io/guide/blog/flow-of-flows-orchestrating-elt-with-prefect-and-dbt/~~
+#prefect deployment - should connect these to github
+prefect deployment build etl_ais_dk.py:etl_ais_dk_std \
+--name "etl_ais_dk" \
+--work-queue $"PREFECT_QUEUE" \
+--cron "0 6 * * *" \
+--apply
 
+#To download data for multiple consecutive days.
+prefect deployment build etl_ais_dk.py:etl_ais_dk_date \
+--name "etl_ais_dk_date" \
+--work-queue $"PREFECT_QUEUE" \
+--description "Call this from prefect cloud to download data for several days. Earliest 2022 11 01, latest 4 days ago." \
+--apply
+
+#prefect agent
+tmux new-session -d -s pf_session 'prefect agent start -q $"PREFECT_QUEUE"'
 
