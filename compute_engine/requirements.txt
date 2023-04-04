@@ -1,7 +1,7 @@
 pandas==1.5.2
-prefect==2.7.7
+prefect>=2.7.7
 prefect-sqlalchemy==0.2.2
-prefect-gcp[cloud_storage]==0.2.4
+prefect-gcp==0.3.0
 prefect-dbt==0.3.1
 prefect-dbt[cli]
 prefect-dbt[bigquery]
@@ -10,5 +10,7 @@ pyarrow==10.0.1
 pandas-gbq==0.18.1
 psycopg2-binary==2.9.5
 sqlalchemy==1.4.46
+pathspec==0.11
+jsonschema==4.0
 
 dbt-bigquery
