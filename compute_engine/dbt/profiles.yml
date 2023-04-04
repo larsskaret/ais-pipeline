@@ -4,7 +4,7 @@ ais_dk:
     dev:
       job_execution_timeout_seconds: 300
       job_retries: 1
-      keyfile: "../{{ env_var('GCP_PREFECT_JSON_LOCATION') }}" #Change this to dbt json
+      keyfile: "../{{ env_var('GCP_DBT_JSON_PATH') }}" #Change this to dbt json
       location: "{{ env_var('GCP_REGION') }}"
       method: service-account
       priority: interactive
@@ -15,7 +15,7 @@ ais_dk:
     prod:
       job_execution_timeout_seconds: 300
       job_retries: 1
-      keyfile: "../{{ env_var('GCP_PREFECT_JSON_LOCATION') }}" #Change this to dbt json
+      keyfile: "../{{ env_var('GCP_DBT_JSON_PATH') }}" #Change this to dbt json
       location: "{{ env_var('GCP_REGION') }}"
       method: service-account
       priority: interactive

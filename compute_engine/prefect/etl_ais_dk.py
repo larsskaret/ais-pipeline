@@ -2,7 +2,6 @@ import os
 import argparse
 import pandas as pd
 
-from tqdm.auto import tqdm
 from datetime import date, timedelta
 from pathlib import Path
 from prefect import flow, task
@@ -67,7 +66,7 @@ def write_bq(df: pd.DataFrame) -> None:
 def dbt_transform() -> None:
     """Run the dbt transformations."""
 
-    dbt_path = f"../../{os.getenv('DBT_PROJECT_PATH')}"
+    dbt_path = f"{os.path.expanduser('~')}/{os.getenv('DBT_PROJECT_PATH')}"
 
     dbt_op = DbtCoreOperation(
         commands=["dbt build --var 'is_test_run: false' --target 'prod'"],
@@ -84,7 +83,6 @@ def etl_ais_dk(year: int = 0, month: int = 0, day: int = 0) -> None:
     Oldest data in day format is 2022.11.01
     Newest data is 3 or 4 days old, depending on time zone.
     Date will not be checked."""  
-    tqdm.pandas()
     #Using silly workaround. Should do a proper check. Perhaps use date format.
     if year != 0 and month != 0 and day != 0:
         dataset_file = f"aisdk-{year}-{month:02}-{day:02}"
@@ -96,7 +94,7 @@ def etl_ais_dk(year: int = 0, month: int = 0, day: int = 0) -> None:
         df_clean = clean_col_dtype(df)
         path = write_local(df_clean)
         write_gcs(path, gcs_path)
-        write_bq(df)
+        write_bq(df_clean)
         os.system(f"rm {path}")
         dbt_transform()
 

@@ -11,7 +11,8 @@ cred_block_name = os.getenv("PREFECT_GCP_CRED_BLOCK")
 bucket_block_name = os.getenv("PREFECT_GCP_BUCKET_BLOCK")
 bucket_name = os.getenv("GCP_DATALAKE_BUCKET")
 
-with open('../'+os.getenv("GCP_PREFECT_JSON_LOCATION")) as file:
+#Should use absolute path
+with open(os.path.expanduser('~')+'/'+os.getenv("GCP_PREFECT_JSON_PATH")) as file:
     pref_cred = json.load(file)
     
 credentials_block = GcpCredentials(
