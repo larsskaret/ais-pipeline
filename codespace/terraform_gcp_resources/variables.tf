@@ -22,17 +22,38 @@ variable "gcp_key_path_terraform" {
     default = "../.secrets/gcp_terraform.json"
 }
 
+variable "user" {
+  description = "User name for ssh connection to compute engine"
+  default     = "ais"
+  type        = string
+}
+
+variable "data_lake_bucket" {
+  description = "Name for GCP data lake bucket"
+  default     = "data_lake_bucket"
+  type        = string
+}
+
+variable "bq_dataset" {
+  description = "Name for BigQuery Dataset"
+  default     = "ais_data"
+  type        = string
+}
+
+variable "storage_class" {
+  description = "Storage class for GCP bucket. Check official docs for more info."
+  default     = "STANDARD"
+  type        = string
+}
+
+#Compute variables:
+
 variable "compute_name" {
   description = "Name of compute instance"
   default     = "ais-compute-1"
   type        = string
 }
 
-variable "user" {
-  description = "User name for ssh connection to compute engine"
-  default     = "ais"
-  type        = string
-}
 
 variable "compute_start_script_path" {
     type = string
@@ -41,6 +62,7 @@ variable "compute_start_script_path" {
 }
 
 variable "compute_ssh_loc" {
+  type    = string
   default = ".ssh/google_compute_engine"
 }
 
