@@ -60,7 +60,7 @@ while : ; do
     fi
 done
 
-echo -e "Writing GCP_PROJECT_ID and BILLING_ID to .env\n"
+echo -e "Writing GCP_PROJECT_ID, GCP_PROJECT_NR and BILLING_ID to .env\n"
 sleep 2
 
 line=$(grep -n "GCP_PROJECT_ID=" .env | cut -d: -f1)
@@ -69,6 +69,12 @@ sed -i "${line}s/$/${GCP_PROJECT_ID}/" .env
 BILLING_ID=$(gcloud beta billing accounts list | grep -Eo '.{6}-.{6}-.{6}')
 line=$(grep -n "GCP_BILLING_ID=" .env | cut -d: -f1)
 sed -i "${line}s/$/${BILLING_ID}/" .env
+
+PROJECT_NR=$(gcloud projects list \
+--filter="$(gcloud config get-value project)" \
+--format="value(PROJECT_NUMBER)")
+line=$(grep -n "GCP_PROJECT_NR=" .env | cut -d: -f1)
+sed -i "${line}s/$/${PROJECT_NR}/" .env
 
 
 echo Install Terraform
