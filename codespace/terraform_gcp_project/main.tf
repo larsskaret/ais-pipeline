@@ -163,3 +163,20 @@ resource "local_file" "private_key_dbt" {
     content  = base64decode(google_service_account_key.sa_key_dbt.private_key)
     filename = "../${var.gcp_key_path_dbt}"
 }
+
+#Compute instance
+resource "google_service_account" "compute_sa" {
+  project      = var.project_id
+  account_id   = "compute-sa"
+  display_name = "compute-sa"
+
+}
+
+#To allow GCP to turn on and off compute engine
+resource "google_project_iam_member" "service_compute_iam" {
+  project = var.project_id
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:service-${var.gcp_project_nr}@compute-system.iam.gserviceaccount.com"
+  #Project number should be in env, 814561174817
+
+}

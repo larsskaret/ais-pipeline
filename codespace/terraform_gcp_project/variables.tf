@@ -20,7 +20,11 @@ variable "zone" {
 }
 
 variable "gcp_billing_id" {
-    type = string
+   type = string
+}
+
+variable "gcp_project_nr" {
+  type = string
 }
 
 variable "gcp_services" {
@@ -33,11 +37,13 @@ variable "gcp_services" {
 
 # Service account for terraform
 variable "sa_account_id_terraform" {
+  type = string
   description = "The service account ID. Changing this forces a new service account to be created."
   default = "sa-terraform"
 }
 
 variable "sa_name_terraform" {
+  type = string
   description = "The display name for the service account. Can be updated without creating a new resource."
   default     = "sa-terraform"
 }
@@ -56,11 +62,13 @@ variable "gcp_key_path_terraform" {
 
 # Service account for prefect
 variable "sa_account_id_prefect" {
+  type = string
   description = "The service account ID. Changing this forces a new service account to be created."
   default = "sa-prefect"
 }
 
 variable "sa_name_prefect" {
+  type = string
   description = "The display name for the service account. Can be updated without creating a new resource."
   default     = "sa-prefect"
 }
@@ -79,11 +87,13 @@ variable "gcp_key_path_prefect" {
 
 # Service account for dbt
 variable "sa_account_id_dbt" {
+  type = string
   description = "The service account ID. Changing this forces a new service account to be created."
   default = "sa-dbt"
 }
 
 variable "sa_name_dbt" {
+  type = string
   description = "The display name for the service account. Can be updated without creating a new resource."
   default     = "sa-dbt"
 }

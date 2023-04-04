@@ -18,7 +18,7 @@ provider "google" {
 }
 
 resource "google_compute_firewall" "firewall" {
-  name    = "gritfy-firewall-externalssh"
+  name    = "firewall-externalssh"
   network = "default"
 
   allow {
@@ -31,7 +31,7 @@ resource "google_compute_firewall" "firewall" {
 }
 
 resource "google_compute_firewall" "webserverrule" {
-  name    = "gritfy-webserver"
+  name    = "webserver"
   network = "default"
 
   allow {
@@ -51,15 +51,10 @@ resource "google_compute_address" "static" {
   depends_on = [ google_compute_firewall.firewall ]
 }
 
-resource "random_id" "id" {
-	  byte_length = 8
-}
-
 resource "google_compute_resource_policy" "instance_schedule" {
   name = "schedule"
   region = var.region
   description = "Start and stop instance"
-
 
   instance_schedule_policy {
     vm_start_schedule {
@@ -68,33 +63,17 @@ resource "google_compute_resource_policy" "instance_schedule" {
     vm_stop_schedule {
       schedule = "45 6 * * *" #5/10 * * * *"#var.vm_stop_schedule#"15 * * * *"
     }
-    time_zone = "Europe/Paris"
+    time_zone = "Europe/Paris" #time zone should be in env
+    
   }
 }
 
-#For creating custom service account for the compute instance - should move this
-resource "google_service_account" "compute-sa" {
-  project      = var.project_id
-  account_id   = "compute-sa"
-  display_name = "compute-sa"
-
-}
-#should move this
-resource "google_project_iam_member" "service-computeiam" {
-  #for_each = toset(var.sa_roles_terraform)
-
-  project = var.project_id
-  role    = "roles/compute.instanceAdmin.v1"
-  member  = "serviceAccount:service-814561174817@compute-system.iam.gserviceaccount.com"
-  #Project number should be in env, 814561174817
-
-}
 
 resource "google_compute_instance" "dev" {
-  name         = "devserver" # name of the server
-  machine_type = "e2-standard-4" # machine type refer google machine types
-  zone         = var.zone # `a` zone of the selected region in our case us-central-1a
-  tags         = ["externalssh","webserver"] # selecting the vm instances with tags
+  name         = var.compute_name
+  machine_type = "e2-standard-4"
+  zone         = var.zone
+  tags         = ["externalssh","webserver"]
   desired_status = var.compute_status
   
   resource_policies = [
@@ -162,7 +141,7 @@ resource "google_compute_instance" "dev" {
 
   # Defining what service account should be used for the VM
   service_account {
-    email  = "${google_service_account.compute-sa.email}"
+    email  = "${google_service_account.compute_sa.email}"
     scopes = ["cloud-platform"]#compute-rw", "roles/compute.instanceAdmin"]
   }             
 }
