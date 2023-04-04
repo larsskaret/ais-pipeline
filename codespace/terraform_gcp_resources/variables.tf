@@ -58,7 +58,7 @@ variable "compute_name" {
 variable "compute_start_script_path" {
     type = string
     description = "Path to compute startup script"
-    default= "compute_startup.sh"
+    default= "../../compute_engine/init_compute_engine.sh"
 }
 
 variable "compute_ssh_loc" {

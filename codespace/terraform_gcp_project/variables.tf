@@ -23,9 +23,9 @@ variable "gcp_billing_id" {
    type = string
 }
 
-variable "gcp_project_nr" {
-  type = string
-}
+#variable "gcp_project_nr" {
+#  type = string
+#}
 
 variable "gcp_services" {
   type        = list

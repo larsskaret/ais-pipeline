@@ -128,7 +128,7 @@ resource "google_service_account_key" "sa_key_pf" {
 
 resource "local_file" "private_key_pf" {
     content  = base64decode(google_service_account_key.sa_key_pf.private_key)
-    filename = "../${var.gcp_key_path_prefect}"
+    filename = "../../${var.gcp_key_path_prefect}"
 }
 
 
@@ -161,7 +161,7 @@ resource "google_service_account_key" "sa_key_dbt" {
 
 resource "local_file" "private_key_dbt" {
     content  = base64decode(google_service_account_key.sa_key_dbt.private_key)
-    filename = "../${var.gcp_key_path_dbt}"
+    filename = "../../${var.gcp_key_path_dbt}"
 }
 
 #Compute instance
@@ -170,13 +170,25 @@ resource "google_service_account" "compute_sa" {
   account_id   = "compute-sa"
   display_name = "compute-sa"
 
+  depends_on = [
+    google_project_service.services,
+  ]
+}
+
+data "google_project" "project" {
+  depends_on = [
+    google_project_service.services,
+  ]
 }
 
 #To allow GCP to turn on and off compute engine
 resource "google_project_iam_member" "service_compute_iam" {
   project = var.project_id
   role    = "roles/compute.instanceAdmin.v1"
-  member  = "serviceAccount:service-${var.gcp_project_nr}@compute-system.iam.gserviceaccount.com"
-  #Project number should be in env, 814561174817
+  member  = "serviceAccount:service-${data.google_project.project.number}@compute-system.iam.gserviceaccount.com"
+
+  depends_on = [
+    data.google_project.project,
+  ]
 
 }

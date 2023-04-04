@@ -45,6 +45,6 @@ resource "google_storage_bucket" "data-lake-bucket" {
 
 resource "google_bigquery_dataset" "dataset" {
   dataset_id = var.bq_dataset
-  project    = var.project
+  project    = var.project_id
   location   = var.region
 }

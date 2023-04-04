@@ -40,10 +40,10 @@ resource "google_compute_resource_policy" "instance_schedule" {
 
   instance_schedule_policy {
     vm_start_schedule {
-      schedule = "30 5 * * *" #0/10 * * * *"#var.vm_start_schedule#"0 * * * *"
+      schedule = "30 5 * * *" #0/10 * * * *"
     }
     vm_stop_schedule {
-      schedule = "45 6 * * *" #5/10 * * * *"#var.vm_stop_schedule#"15 * * * *"
+      schedule = "45 6 * * *" #5/10 * * * *"
     }
     time_zone = "Europe/Paris" #time zone should be in env
     
@@ -85,7 +85,7 @@ resource "google_compute_instance" "dev" {
 
   # This is copy the the SSH public Key to enable the SSH Key based authentication
   metadata = {
-    ssh-keys = "${var.user}:${file("${var.compute_ssh_loc}.pub")}"
+    ssh-keys = "${var.user}:${file("../${var.compute_ssh_loc}.pub")}"
   }
 
   # to connect to the instance after the creation and execute few commands for provisioning
@@ -95,26 +95,26 @@ resource "google_compute_instance" "dev" {
     host        = google_compute_address.static.address
     type = "ssh"
     user = var.user
-    private_key = file(var.compute_ssh_loc)
+    private_key = file("../${var.compute_ssh_loc}")
     agent = "false"
     timeout = "60s"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "mkdir ais_pipeline"
+      "mkdir compute_engine"
     ]
   }
 
   #Transfer files
   provisioner "file" {
-    source = "./test/"
-    destination = "./ais_pipeline"
+    source = "../../compute_engine/"#source shuold be in variables/env
+    destination = "./compute_engine"
   }
 
   #Provisioners is a hack that 
   provisioner "remote-exec" {
-    script = "../${var.compute_start_script_path}"
+    script = "../../${var.compute_start_script_path}"
   }
 
 
@@ -122,9 +122,9 @@ resource "google_compute_instance" "dev" {
   depends_on = [ google_compute_firewall.firewall, google_compute_firewall.webserverrule ]
 
   # Defining what service account should be used for the VM
-  service_account {
-    email  = "${google_service_account.compute_sa.email}"
-    scopes = ["cloud-platform"]#compute-rw", "roles/compute.instanceAdmin"]
-  }             
+  #service_account {
+  #  email  = "${google_service_account.compute_sa.email}"
+  #  scopes = ["cloud-platform"]#compute-rw", "roles/compute.instanceAdmin"]
+  #}             
 }
 
