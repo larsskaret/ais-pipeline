@@ -100,4 +100,5 @@ terraform init
 terraform apply #-auto-approve
 
 cd ..
+set -o allexport && source .env && set +o allexport
 cp .env ../compute_engine/.env
