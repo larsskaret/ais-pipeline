@@ -25,12 +25,17 @@ cat << EOF
 # PS. Paste in codespeace terminal is  #
 # both cmd/ctrl+alt+v and cmd/ctrl+v   #
 #                                      #
+# Note! You have to log in twice, for  #
+# two different functionalities.       # 
+#                                      #
 ########################################
 
 EOF
 
+
+
 gcloud auth application-default login
-#gcloud auth login
+gcloud auth login
 
 GCP_PROJECT_ID=${GCP_PROJECT_NAME}-${RANDOM}
  
@@ -50,6 +55,16 @@ sed -i "${line}s/$/${BILLING_ID}/" .env
 #--format="value(PROJECT_NUMBER)")
 #line=$(grep -n "GCP_PROJECT_NR=" .env | cut -d: -f1)
 #sed -i "${line}s/$/${PROJECT_NR}/" .env
+
+cat << EOF
+
+#############################
+#                           #
+# Let's create ssh key pair #
+#                           #
+#############################
+
+EOF
 
 mkdir .ssh
 ssh-keygen -t rsa -f ./${GCP_SSH_KEY_LOCATION} -C ${GCP_COMPUTE_USERNAME} -b 2048
