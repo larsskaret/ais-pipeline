@@ -10,7 +10,11 @@ pyarrow==10.0.1
 pandas-gbq==0.18.1
 psycopg2-binary==2.9.5
 sqlalchemy==1.4.46
-pathspec==0.11
-jsonschema==4.0
+pathspec==0.10
+jsonschema==3.2.0
+testresources
+requests>=2.6
+zipp>=3.1.0
+
 
 dbt-bigquery

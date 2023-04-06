@@ -61,8 +61,15 @@ resource "google_compute_instance" "dev" {
   resource_policies = [
     google_compute_resource_policy.instance_schedule.id
   ]
-
-
+  
+  #work queue (default) should be an env variable, this requires us to source the env vars first.
+  #file("scripts/startup.sh")
+  metadata_startup_script = <<-EOT
+  #!/bin/bash
+  set -o allexport && source /home/ais/.env && set +o allexport
+  sudo -u ais bash -c "source /home/ais/ais-env/bin/activate
+  tmux new-session -d -s pf_session 'prefect agent start -q default'"
+  EOT
 
   # to create a startup disk with an Image/ISO. 
   # here we are choosing the CentOS7 image
@@ -100,19 +107,14 @@ resource "google_compute_instance" "dev" {
     timeout = "60s"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir compute_engine"
-    ]
-  }
 
   #Transfer files
   provisioner "file" {
-    source = "../../compute_engine/"#source shuold be in variables/env
-    destination = "./compute_engine"
+    source = "../../compute_engine/"#source should be in variables/env
+    destination = "./"
   }
 
-  #Provisioners is a hack that 
+  #Run init script
   provisioner "remote-exec" {
     script = "../../${var.compute_start_script_path}"
   }
