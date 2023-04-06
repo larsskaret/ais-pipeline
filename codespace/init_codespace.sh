@@ -34,7 +34,7 @@ EOF
 
 
 
-#gcloud auth application-default login
+gcloud auth application-default login
 
 cat << EOF
 
@@ -47,7 +47,7 @@ cat << EOF
 EOF
 
 
-#gcloud auth login
+gcloud auth login
 
 GCP_PROJECT_ID=${GCP_PROJECT_NAME}-${RANDOM}
  
