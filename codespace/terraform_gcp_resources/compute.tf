@@ -66,8 +66,9 @@ resource "google_compute_instance" "dev" {
   #file("scripts/startup.sh")
   metadata_startup_script = <<-EOT
   #!/bin/bash
-  set -o allexport && source /home/ais/.env && set +o allexport
-  sudo -u ais bash -c "source /home/ais/ais-env/bin/activate
+  
+  sudo -u ais bash -c "set -o allexport && source /home/ais/.env && set +o allexport
+  source /home/ais/ais-env/bin/activate
   tmux new-session -d -s pf_session 'prefect agent start -q default'"
   EOT
 
