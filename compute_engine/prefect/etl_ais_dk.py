@@ -69,7 +69,7 @@ def dbt_transform() -> None:
     dbt_path = f"{os.path.expanduser('~')}/{os.getenv('DBT_PROJECT_PATH')}"
 
     dbt_op = DbtCoreOperation(
-        commands=["dbt build --var 'is_test_run: false' --target 'prod'"],
+        commands=["dbt deps, dbt build --var 'is_test_run: false' --target 'prod'"],
         working_dir=dbt_path,
         project_dir=dbt_path,
         profiles_dir=dbt_path,
