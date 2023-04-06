@@ -34,20 +34,20 @@ EOF
 
 
 
-gcloud auth application-default login
+#gcloud auth application-default login
 
 cat << EOF
 
-########################################
-#                                      #
-# Second login                         # 
-#                                      #
-########################################
+################
+#              #
+# Second login # 
+#              #
+################
 
 EOF
 
 
-gcloud auth login
+#gcloud auth login
 
 GCP_PROJECT_ID=${GCP_PROJECT_NAME}-${RANDOM}
  
@@ -105,7 +105,7 @@ cat << EOF
 
 EOF
 sleep 2
-cp ../.env ../../compute_engine/.env
+cp .env ../compute_engine/.env
 
 cd terraform_gcp_project
 terraform init
