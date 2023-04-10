@@ -28,7 +28,7 @@ Not all vessels carry an AIS sender.
 
 ## Problem description
 
-The Danish Maritime Authority publish around 10 million historical (3 days old) AIS messages per day. This projects seeks to allow investigating the AIS data to better understand vessel traffic in Danish seas.
+The Danish Maritime Authority publish around 10 million AIS messages per day (3 days old data). This projects seeks to allow investigating the AIS data to better understand vessel traffic in Danish waters.
 
 Some questions we want to answer/investigations we want to make:
 1. Under what [flag](https://en.wikipedia.org/wiki/Flag_state) are the ships sailing? Show the most common flags for the current time period (ie, the data you have retrieved).
@@ -77,6 +77,23 @@ compute_engine contains
 ## Architecture
 
 ![arch](/assets/images/architecture.png)
+
+## Partitioning and clustering
+
+Depending on what we want to query, it might be we should partition and cluster with opposite columns.
+
+We want to parition on a column we often filter on (where ...) and we want to cluster by a column we often sort by (order by ...)
+
+If we want to track a vessel location, `where mmsi = x`, we should partition by mmsi (vessel id) and cluster by date (order by timestamp)
+But we would still probably want to filter the date as well? To track a vessel within certain limits.
+
+If we want to know the big picture at certain time, `where timestamp = x`, we should partition by timestamp and cluster by mmsi (order by mmsi).
+
+When we partition on an integer (mmsi) we decide min, max and step. Which makes it possible to add several mmsi in the same partition. 
+
+Since this project seeks to allow investigating the AIS data to better understand vessel traffic in Danish waters, I came to the conclusion that filtering on date would be the most common of the two. Therefore, the fact_ais table is paritioned on timestamp (day) and clustered by mmsi and timestamp.
+
+Note: after this decision was made, the pipeline was changed to make mmsi a string data type.
 
 ## Dashboard
 
