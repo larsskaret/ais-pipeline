@@ -4,6 +4,10 @@ First thing first: I'm required to announce that I am not affiliated with the da
 
 This is a data pipeline that daily retrieves zip files from a source web page and stores it in a cloud datalake and a data warehouse. The data is then transformed and prepared for presentation. Finally, the data is presented on a dashboard.
 
+The infrastructure is created running Terraform from GitHub Codespaces. The entire infrastructure will be created running one script file (see instructions below).
+
+The pipeline code is located on a compute engine in Google Cloud that is scheduled to be powered on a limitied amount of time every day in order to save cost. Running the code is orchestrated from Prefect Cloud.
+
 ## Context
 
 This is the final project for the DataTalks.Club Data Engineering Zoomcamp. It's a free, practical, 10-week long course about the main concepts in Data Engineering.
@@ -107,7 +111,7 @@ Note: after this decision was made, the pipeline was changed to make mmsi a stri
 
 ## Recreate
 
-I have made an effort to make it easy to recreate the project. I hope it works. You will have to use GitHub Codespaces.
+I have made an effort to make it easy to recreate the project. You will have to use GitHub Codespaces. (If stuck, you can reach out to me at Slack, DataTalks.Club, Lars Skaret).
 
 1. Prerequisites/accounts you need:
     - GitHub account
@@ -146,6 +150,8 @@ I have made an effort to make it easy to recreate the project. I hope it works. 
     - When the script is finished, everything should be ready to run flows from prefect cloud.
 
     - The data source is updated every day. The prefect flow is scheduled to run 06:00 AM (Europe/Paris) every day. To save cost, the compute engine is scheduled to wake up at 05:30 AM and shut down at 06:45 AM every day.
+    
+    - If the script fails any of the steps, feel free to run it again, but you should clear all #Automated variables in .env. If this doesn't work, try to copy paste one command at the time from the script.
 
     - **Important** If you run a flow for the same day several times, the BigQuery table will be appended to with the same data.
 
