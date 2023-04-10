@@ -1,44 +1,47 @@
 # AIS Data pipeline 
 
-First thing first: I'm required to announce that I am not affiliated with the data source - Danish Maritime Authority.
+First thing first: I'm required to announce that I am not affiliated with the data source - The Danish Maritime Authority.
 
-This is the final project for the DataTalks.Club Data Engineering Zoomcamp.
+This is a data pipeline that daily retrieves zip files from a source web page and stores it in a cloud datalake and a data warehouse. The data is then transformed and prepared for presentation. Finally, the data is presented on a dashboard.
+
+## Context
+
+This is the final project for the DataTalks.Club Data Engineering Zoomcamp. It's a free, practical, 10-week long course about the main concepts in Data Engineering.
 
 https://github.com/DataTalksClub/data-engineering-zoomcamp
 
-This is a data pipeline that daily retieves data from a source and stores it in a cloud datalake and a data warehouse. The data is then transformed and prepared for presentation. Finally, the data is presented on a dashboard.
+The project adheres to some criteria as described [here](Criteria.md).
 
 ## What is AIS?
 
-[From wikipedia](https://en.wikipedia.org/wiki/Automatic_identification_system):
+[From wikipedia:](https://en.wikipedia.org/wiki/Automatic_identification_system)
 
 The automatic identification system (AIS) is an automatic tracking system that uses transceivers on ships and is used by vessel traffic services (VTS). When satellites are used to receive AIS signatures, the term Satellite-AIS (S-AIS) is used. AIS information supplements marine radar, which continues to be the primary method of collision avoidance for water transport. Although technically and operationally distinct, the ADS-B system is analogous to AIS and performs a similar function for aircraft.
 
 ## Data - practical info
 
-The data is stored as zipped csv files on the source web. Data is available in day format from 2022 11 01. Latest data is 3-4 days old. Earlier data then November 2022 is stored per month. Data size is about 2 GB per day (unzipped)
-
-## Problem description
-
-This projects seeks to allow investigating the AIS data for Denmark.
-
-Some questions we want to answer/investigations we want to make:
-1. Under what flag are the ships sailing? Show the most common flags for the current time period (ie, the data you have retrieved).
-2. One a particular time period, choose a vessel and track it's location based on it's identification number (mmsi)
-3. In the vicinity of Copenhagen, how many vessels are sending AIS messages?
-4. How many vessels report carrying cargo that: *justify the prohibition of the discharge into the marine environment (Category X)*
-5. Create a heat map to see where the the traffic is most dense.
-
+The data is stored as zipped csv files on the source web page. Data is available in day format from 2022 11 01. Latest data is 3-4 days old. Earlier data than November 2022 is stored per month. Data size is about 2 GB per day (unzipped). This project only allows for retrieval of daily data.
 
 AIS data is provided by the vessels. In practice this means that the quality of the data can vary. For example the AIS sender can be made to send false positions.
 
 Not all vessels carry an AIS sender.
 
+## Problem description
 
+The Danish Maritime Authority publish around 10 million historical (3 days old) AIS messages per day. This projects seeks to allow investigating the AIS data to better understand vessel traffic in Danish seas.
+
+Some questions we want to answer/investigations we want to make:
+1. Under what [flag](https://en.wikipedia.org/wiki/Flag_state) are the ships sailing? Show the most common flags for the current time period (ie, the data you have retrieved).
+2. Choose a vessel and track it's location based on it's identification number (mmsi)
+3. In the vicinity of Copenhagen, how many vessels are sending AIS messages?
+4. How many vessels report carrying cargo that: *justify the prohibition of the discharge into the marine environment (Category X)*
+5. Create a heat map to see the traffic density.
 
 ## Technologies
 
-GitHub: host source code, and codespaces for execution environment of IaC
+GitHub:
+    - repository to host source code
+    - codespaces for execution environment of IaC
 
 Terraform: Infrastructure as Code (IaC)
 
@@ -90,63 +93,77 @@ compute_engine contains
 I have made an effort to make it easy to recreate the project. I hope it works. You will have to use GitHub Codespaces.
 
 1. Prerequisites/accounts you need:
-    - GitHub
+    - GitHub account
     
-    - Google Cloud 
+    - [Google Cloud](https://cloud.google.com/)
 
         - With billing enabled and only one billing account. 
-        - 1-4 projects linked to your billing account (at least, I had problems with this - trial account).
+        - Not more than 4 projects linked to your billing account. This caused problems for me, but there might be a setting somewhere in Google Cloud to adjust this setting.
       
-    - Prefect Cloud
+    - [Prefect Cloud](https://app.prefect.cloud/)
     
-    - Google Looker Studio (Dashboard)
-    
-2. Open the repo in codespace (Green Code button) 
+    - [Google Looker Studio](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiEnYbz-57-AhVHQ_EDHQIUAwsQjBB6BAgNEAE&url=https%3A%2F%2Flookerstudio.google.com%2F%3Frequirelogin%3D1&usg=AOvVaw1T37z_54OF7STAOCECn7Hg)
 
-3. In the codespace directory, copy or rename .env.example to .env. Feel free to rename the variables, but I'm not 100 % certain there are no hard coded version of one of the variables that can cause problems.
+        - Only if you want to recreate the dashboard.
+    
+2. Open the repo in codespace, the green Code button, then Codespaces, then plus.
+
+![codespaces](/assets/images/codespaces.png)
+
+3. In the codespace directory, copy or rename .env.example to .env. Feel free to change the variables, but there is a slight chance that there is a hard coded variable name somewhere that can cause problems.
 
 4. In the .env file, add your prefect API key from prefect cloud. If you don't have one stored somewhere, you have to make a new. 
 
-[Instructions](https://docs.prefect.io/ui/cloud-api-keys/)
+    - [Instructions](https://docs.prefect.io/ui/cloud-api-keys/)
 
-5. Run the command `. ./init_codespace.sh` -notice the first dot
+5. In the terminal: `cd codespace`
 
-    - You will be asked to log in to google twice (for two different gcloud operations). Please be careful when pasting the keys as I have not addded any safety nets for failing functions.
+6. Run the command `. ./init_codespace.sh` (notice the first dot)
 
-    - You will be asked for a passphrase for ssh key. I can use an empty one.
+    - You will be asked to log in to Google twice (for two different gcloud operations). Please be careful when pasting the keys as I have not addded any safety nets for failing functions.
 
-    - You will be asked to accept the terraform apply. I have done this so you can verify what is created.
+    - You will be asked for a passphrase for an ssh key. You can use an empty one.
+
+    - You will be asked to accept the terraform apply. I have done this so you can verify what is created. The project contains two Terraform modules/projects. The first one creates the Google Cloud projects and sets up the service accounts, APIs etc. This Terraform module uses your Google Cloud account for verficiation. The second module creates the GCS bucket, BigQuery and Compute engine. It uses a Terraform service account credentials key for verification.
 
     - When the script is finished, everything should be ready to run flows from prefect cloud.
 
-    - The data source is updated every day. The prefect flow is scheduled to run 06:00 AM (Europe/Paris) every day. To save cost, the compute engine is scheduled to wake up at 05:30 AM and shut down at 06:30 AM every day.
+    - The data source is updated every day. The prefect flow is scheduled to run 06:00 AM (Europe/Paris) every day. To save cost, the compute engine is scheduled to wake up at 05:30 AM and shut down at 06:45 AM every day.
 
-    - If you run a flow for the same day several times, the BigQuery table will be appended to with the same data.
+    - **Important** If you run a flow for the same day several times, the BigQuery table will be appended to with the same data.
+
+    - **Important** The tables produced by dbt are incremental based on dates. This means that if you try to add data that is older than the existing, it will not be included. 
   
   
-6. If you want to explore (or fix...) the compute engine - ssh
+7. If you want to explore (or fix...) the compute engine you can use ssh. From codespaces this command should work (given the .env vars are exported):
 
     - `gcloud compute ssh ais@$GCP_COMPUTE_ENGINE_NAME --ssh-key-file=.ssh/google_compute_engine --project=$GCP_PROJECT_ID`
 
-    - The agent runs in tmux session:
+    - If the .env vars are not exported, run this from codespace dir: `set -o allexport && source .env && set +o allexport`
+
+    - On the compute engine, the [prefect agent](https://docs.prefect.io/latest/concepts/work-pools/) runs in tmux session:
 
         - `tmux attach-session -t pf_session`
 
-    - To exit session: `ctrl+b d`
+        - To exit session: `ctrl+b d`
 
-    - To start a new window (shell prompt) ctrl+b c. You will then have a shell with the env vars.
+        - To start a new window (shell prompt) ctrl+b c. You will then have a shell with the env vars.
 
-7. To shut down compute engine, run `terraform apply --var=compute_status='TERMINATED'` in the terraform_gcp_resuources folder
+8. To shut down compute engine, run `terraform apply --var=compute_status='TERMINATED'` in the terraform_gcp_resuources folder
 
     - To turn the compute engine back on run `terraform apply` in the same folder (defaults to 'RUNNING')
 
-8. If you decided to commit and sync the repo somewhere, double check that you don't accidentaly added any secrets to .env.example or somehow the .ssh and .JSON keys/secrets 
+    - Since Google cloud is configured to start and stop the compute engine every day, you can shut it down when you are finished.
 
-9. Now for the most manual part of the project, the dashboard.
+9. If you decided to publish the repo somewhere, double check that you don't accidentaly added any secrets to .env.example or somehow the .ssh and .JSON keys/secrets.
+
+10. Now for the most manual part of the project, the dashboard.
 
     - Here is mine, you should be able to select date ranges and mmsi number.
 
         - https://lookerstudio.google.com/s/odf4lHd0GnE
+
+        - The date range for
 
     - If you want to go through the trouble and make your own, here are some tips:
 
@@ -159,7 +176,7 @@ I have made an effort to make it easy to recreate the project. I hope it works. 
     - I think its a good idea to copy my dashboard and work from there. I have not done this before, so can't give detailed instructions.
 
 
-10. To remove everything, you can run `terraform destroy` in both terraform modules/directories (resources first and then project). 
+11. To remove everything, you can run `terraform destroy` in both terraform modules/directories (resources first and then project). 
 
 
 ## TIP
@@ -168,20 +185,24 @@ If you can't find your project on the GCP UI, choose the **ALL** tab.
 
 ![Tip](/assets/images/choose_project.png)
 
-## Todo and considerations
+## Todo
 
-- Better documentation
-- Prettify dashboard
-- pip wheel error
-- project somewhat rough around the edges
+- Improve documentation
+- Prettify and improve dashboard
+- Downsample data to improve dashboard maps response time?
+- Fix pip wheel error
+- Project somewhat rough around the edges
 - Scalability
     - example: more env variables, less hard coded
-- ost flows on github (should be simple to achieve this)
+- Host prefect flows on github (should be simple to achieve this)
     - and generally make it easier to develop/change the code, including dbt.
 - CI/CD
+- Implement testing
+- Standarize variable names.
 - Use Docker, more robust and scalable setup
 - Configure flow to be able to not download data if data already exists
 - Flows are nameed etl, but in reality it's elt...
+- Prune the requirements.txt file
 - And much more :)
 
 ## Data source information - licences
