@@ -8,7 +8,7 @@ GCS_BUCKET_LOC_DK = os.getenv("GCP_DATALAKE_PATH_DK")
 
 #Connect this to terraform somehow?
 SCHEMA_DK = {
-    'timestamp'     : 'datetime64[ns]',
+    'timestamp'     : 'string',
     'source_type'   : 'string',
     'mmsi'          : 'string',
     'lat'           : 'float64',
@@ -28,7 +28,7 @@ SCHEMA_DK = {
     'pfd_type'      : 'string',
     'draught'       : 'float64',
     'destination'   : 'string',
-    'eta'           : 'datetime64[ns]',
+    'eta'           : 'string',
     'data_source'   : 'string',
     'a'             : 'float64',
     'b'             : 'float64',

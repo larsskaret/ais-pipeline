@@ -26,6 +26,9 @@ def clean_col_dtype(df=pd.DataFrame) -> pd.DataFrame:
 
     df.columns = COLUMN_NAMES_DK
     df = df.astype(SCHEMA_DK)
+
+    df['timestamp'] = pd.to_datetime(df['timestamp'], format='%d/%m/%Y %H:%M:%S')
+    df['eta'] = pd.to_datetime(df['eta'], format='%d/%m/%Y %H:%M:%S')
     print(f"columns: {df.dtypes}")
     print(f"rows: {len(df)}")
     return df
@@ -62,7 +65,7 @@ def write_bq(df: pd.DataFrame) -> None:
     )
     print(f"Wrote {len(df)} lines to table {GCP_TABLE_DK} for GCP prject {GCP_PROJECT_ID}.")
 
-@task
+@task()
 def dbt_transform() -> None:
     """Run the dbt transformations."""
 
@@ -115,7 +118,7 @@ def etl_ais_dk_date(start_date: date = date(1,1,1), end_date: date = date(1,1,1)
         end_date <= (date.today() - timedelta(4)) and
         start_date < end_date):
 
-        for dl_date in daterange(start_date, end_date):
+        for dl_date in daterange(start_date, end_date + timedelta(1)):
             etl_ais_dk(dl_date.year, dl_date.month, dl_date.day)
     else:
         print("Day format data: Earliest date is 2022.11.01 and latest date is 4 days before today.")
