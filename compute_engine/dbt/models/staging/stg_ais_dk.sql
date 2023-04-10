@@ -1,5 +1,5 @@
 {{ 
-    config(materialized='incremental') 
+    config(materialized='incremental')
 }}
 
 select
@@ -26,17 +26,24 @@ select
 
 from {{ source('staging', 'dk') }}
 
-where
-  lon > 2 and
-  lon < 18 and 
-  lat > 52 and
-  lat < 60 and
-  length(mmsi) = 9
-
 {% if is_incremental() %}
 
   -- this filter will only be applied on an incremental run
-  where timestamp > (select max(timestamp) from {{ this }})
+  where timestamp > (select max(timestamp) from {{ this }}) and
+    lon > 2 and
+    lon < 18 and 
+    lat > 52 and
+    lat < 60 and
+    length(mmsi) = 9
+
+  {% else %}
+
+  where
+    lon > 2 and
+    lon < 18 and 
+    lat > 52 and
+    lat < 60 and
+    length(mmsi) = 9
 
 {% endif %}
 
