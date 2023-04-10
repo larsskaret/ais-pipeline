@@ -147,16 +147,17 @@ I have made an effort to make it easy to recreate the project. You will have to 
 
     - You will be asked to accept the terraform apply. I have done this so you can verify what is created. The project contains two Terraform modules/projects. The first one creates the Google Cloud projects and sets up the service accounts, APIs etc. This Terraform module uses your Google Cloud account for verficiation. The second module creates the GCS bucket, BigQuery and Compute engine. It uses a Terraform service account credentials key for verification.
 
-    - When the script is finished, everything should be ready to run flows from prefect cloud.
+    - When the script is finished, everything should be ready to run deployments from prefect cloud. There are two types of deployments, one that loops through a date range and one that retrieves date from a single date. To retrieve data from a single date will take about six minutes. See image below for how what menu and button to push to run the deployment. Choose custom run and specify a date in the next menu.
 
     - The data source is updated every day. The prefect flow is scheduled to run 06:00 AM (Europe/Paris) every day. To save cost, the compute engine is scheduled to wake up at 05:30 AM and shut down at 06:45 AM every day.
-    
-    - If the script fails any of the steps, feel free to run it again, but you should clear all #Automated variables in .env. If this doesn't work, try to copy paste one command at the time from the script.
+
+     - If the script fails any of the steps, feel free to run it again, but you should clear all #Automated variables in .env. If this doesn't work, try to copy paste one command at the time from the script.
 
     - **Important** If you run a flow for the same day several times, the BigQuery table will be appended to with the same data.
 
     - **Important** The tables produced by dbt are incremental based on dates. This means that if you try to add data that is older than the existing, it will not be included. 
   
+  ![deployment](/assets/images/deployment.png)
   
 7. If you want to explore (or fix...) the compute engine you can use ssh. From codespaces this command should work (given the .env vars are exported):
 
