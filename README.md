@@ -163,8 +163,6 @@ I have made an effort to make it easy to recreate the project. I hope it works. 
 
         - https://lookerstudio.google.com/s/odf4lHd0GnE
 
-        - The date range for
-
     - If you want to go through the trouble and make your own, here are some tips:
 
     - You have to register to start using it.
