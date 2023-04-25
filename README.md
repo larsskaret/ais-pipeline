@@ -183,7 +183,7 @@ I have made an effort to make it easy to recreate the project. You will have to 
 
 10. Now for the most manual part of the project, the dashboard.
 
-    - Here is mine, you should be able to select date ranges and mmsi number.
+    - Here is mine, my trial at GCP is over and therefore there is no data.
 
         - https://lookerstudio.google.com/s/odf4lHd0GnE
 
